@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Purchase Order Management System</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="shortcut icon" href="https://i.imgur.com/gK9RzUp.png" type="image/x-icon">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar Component Container -->
+    <aside class="sidebar" id="sidebar-container"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navbar Component Container -->
+      <nav class="navbar" id="navbar-container"></nav>
+
+      <!-- KPI Metrics Grid -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-title">Total POs</div>
+          <div class="metric-value" id="stat-total-count">-</div>
+          <div class="metric-icon">📦</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Today's POs</div>
+          <div class="metric-value" id="stat-today-count">-</div>
+          <div class="metric-icon">📅</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Monthly Total</div>
+          <div class="metric-value" id="stat-monthly-total">-</div>
+          <div class="metric-icon">💰</div>
+        </div>
+
+      </div>
+
+      <!-- Controls Panel -->
+      <div class="controls-panel">
+        <div class="search-input-wrapper">
+          <input type="text" id="search-input" class="form-control" placeholder="Search by PO No, Supplier, Amount, Date, Status...">
+        </div>
+        
+
+
+        <div class="filter-group">
+          <select id="filter-supplier" class="form-control">
+            <option value="">All Suppliers</option>
+            <!-- Dynamically Loaded -->
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <select id="sort-select" class="form-control">
+            <option value="newest">Sort: Newest First</option>
+            <option value="oldest">Sort: Oldest First</option>
+            <option value="supplier">Sort: Supplier Name</option>
+            <option value="ponumber">Sort: PO Number</option>
+            <option value="amount">Sort: Amount (High-Low)</option>
+          </select>
+        </div>
+
+        <a href="create-po.html" class="btn btn-primary">
+          ➕ Create New PO
+        </a>
+      </div>
+
+      <!-- Main PO List Table -->
+      <div class="table-container">
+        <table class="po-table">
+          <thead>
+            <tr>
+              <th style="width: 150px;">PO Number</th>
+              <th style="width: 120px;">PO Date</th>
+              <th>Supplier</th>
+              <th style="width: 150px;">Grand Total</th>
+              <th style="width: 130px;">Download</th>
+            </tr>
+          </thead>
+          <tbody id="po-list-rows">
+            <!-- Loaded dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/dashboard.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Load Navbar / Sidebar components
+      await window.UI.initLayout('Dashboard', 'Real-time overview of Purchase Orders');
+      
+      // 2. Initialize dashboard controller
+      await window.DASHBOARD.init();
+    });
+  </script>
+</body>
+</html>

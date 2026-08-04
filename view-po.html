@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Purchase Order - POMS</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="shortcut icon" href="https://i.imgur.com/gK9RzUp.png" type="image/x-icon">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar-container"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navbar -->
+      <nav class="navbar" id="navbar-container"></nav>
+
+      <!-- Top Buttons Bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <a href="dashboard.html" class="btn btn-secondary">⬅️ Back to Dashboard</a>
+          <h2 style="font-size: 20px; font-weight: 700; color: var(--text-heading);" id="po-title-display">Purchase Order</h2>
+          <span class="badge" id="po-status-badge">Pending</span>
+        </div>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <!-- Action controls -->
+          <button class="btn btn-secondary" id="btn-edit-po">✏️ Edit PO</button>
+          <button class="btn btn-secondary" id="btn-duplicate-po">📋 Duplicate PO</button>
+          <button class="btn btn-secondary" id="btn-send-email">📧 Send Email</button>
+          <a href="#" class="btn btn-success" id="btn-download-pdf" target="_blank">📥 Direct Download</a>
+          
+          <!-- Status approval workflow -->
+          <div id="approval-actions-group" style="display: none; gap: 10px;">
+            <button class="btn btn-success" id="btn-approve-po">✔️ Approve</button>
+            <button class="btn btn-danger" id="btn-reject-po">❌ Reject</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Columns Grid -->
+      <div class="view-grid">
+        <!-- Column 1: PDF Viewer Frame -->
+        <div class="pdf-preview-box">
+          <div id="pdf-loading-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--panel-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; z-index: 10;">
+            <span class="spinner" style="font-size: 32px;">⏳</span>
+            <div style="font-size: 14px; font-weight: 500;">Loading PDF Preview from Google Drive...</div>
+          </div>
+          <iframe id="pdf-preview-iframe" class="pdf-iframe" src=""></iframe>
+        </div>
+
+        <!-- Column 2: PO Details Sidebar -->
+        <div style="display: flex; flex-direction: column; gap: 30px;">
+          <!-- Metadata Card -->
+          <div class="form-section-card" style="margin-bottom: 0;">
+            <div class="section-title">PO Meta Details</div>
+            <table style="width: 100%; font-size: 13px; border-collapse: collapse; color: var(--text-secondary);">
+              <tr style="border-bottom: 1px solid var(--card-border);">
+                <td style="padding: 10px 0; font-weight: 600;">Supplier</td>
+                <td style="padding: 10px 0; text-align: right; color: #fff;" id="meta-supplier">-</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--card-border);">
+                <td style="padding: 10px 0; font-weight: 600;">Grand Total</td>
+                <td style="padding: 10px 0; text-align: right; font-weight: 700; color: var(--accent-color);" id="meta-total">-</td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--card-border);">
+                <td style="padding: 10px 0; font-weight: 600;">Created By</td>
+                <td style="padding: 10px 0; text-align: right; color: #fff;" id="meta-created-by">-</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px 0; font-weight: 600;">Created At</td>
+                <td style="padding: 10px 0; text-align: right; color: #fff;" id="meta-created-at">-</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Revision Timeline -->
+          <div class="form-section-card" style="margin-bottom: 0; flex: 1;">
+            <div class="section-title">Revision History</div>
+            <div class="log-timeline" id="revision-timeline-container">
+              <!-- Dynamically populated timeline items -->
+              <div class="timeline-item">
+                <div class="timeline-date">Just Now</div>
+                <div class="timeline-desc">Fetch in progress...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Send Email Modal popup -->
+      <div class="modal-overlay" id="email-modal">
+        <div class="modal-content">
+          <div class="section-title">
+            <span>📧 Email Purchase Order PDF</span>
+            <button class="btn-icon" id="email-modal-close" style="font-size: 20px;">&times;</button>
+          </div>
+          <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+            The PDF document will be sent as an attachment. Standard subject and email templates will be used.
+          </div>
+          <div class="form-group">
+            <label for="recipient-email">Recipient Email Address *</label>
+            <input type="email" id="recipient-email" class="form-control" placeholder="supplier-email@example.com" required>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+            <button class="btn btn-secondary" id="email-cancel">Cancel</button>
+            <button class="btn btn-primary" id="email-send-submit">Send Email</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+
+  <script>
+    let currentPoNo = '';
+    let poObject = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Get PO Number
+      const urlParams = new URLSearchParams(window.location.search);
+      currentPoNo = urlParams.get('id');
+
+      if (!currentPoNo) {
+        window.UI.showToast('No PO Number specified.', 'error');
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+        return;
+      }
+
+      // 2. Initialize Layout
+      await window.UI.initLayout('View PO', `Viewing details for ${currentPoNo}`);
+      
+      // 3. Load PO details
+      await loadPODetails();
+      
+      // 4. Bind action buttons
+      setupActionBindings();
+    });
+
+    async function loadPODetails() {
+      // 1. Try instant load from sessionStorage cache
+      let cached = null;
+      try {
+        const raw = sessionStorage.getItem('current_po_' + currentPoNo);
+        if (raw) cached = JSON.parse(raw);
+      } catch (e) {}
+
+      if (cached) {
+        poObject = cached;
+        populateViewUI(poObject);
+      }
+
+      // 2. Fetch fresh data from API
+      try {
+        const freshData = await window.API.getPO(currentPoNo);
+        if (freshData) {
+          poObject = freshData;
+          populateViewUI(poObject);
+        } else if (!cached) {
+          window.UI.showToast('Purchase Order not found.', 'error');
+          setTimeout(() => window.location.href = 'dashboard.html', 1500);
+        }
+      } catch (err) {
+        if (!cached) {
+          window.UI.showToast(`Error fetching PO details: ${err.message}`, 'error');
+        }
+      }
+    }
+
+    function populateViewUI(data) {
+      if (!data) return;
+
+      // Title and Status Badge
+      document.getElementById('po-title-display').textContent = `Purchase Order (${data.poNo || currentPoNo})`;
+      const badge = document.getElementById('po-status-badge');
+      badge.textContent = data.status || 'Pending';
+      badge.className = 'badge';
+      let badgeClass = 'badge-pending';
+      if (data.status === 'Approved') badgeClass = 'badge-approved';
+      if (data.status === 'Rejected') badgeClass = 'badge-rejected';
+      if (data.status === 'Generated') badgeClass = 'badge-generated';
+      badge.classList.add(badgeClass);
+
+      // Download link
+      const downloadBtn = document.getElementById('btn-download-pdf');
+      if (data.directDownloadLink) {
+        downloadBtn.href = data.directDownloadLink;
+        downloadBtn.removeAttribute('disabled');
+        downloadBtn.style.opacity = '1';
+      } else {
+        downloadBtn.href = '#';
+        downloadBtn.style.opacity = '0.5';
+        downloadBtn.setAttribute('disabled', 'true');
+      }
+
+      // Email modal input default
+      const recipientInput = document.getElementById('recipient-email');
+      if (recipientInput) recipientInput.value = data.supplierEmail || '';
+
+      // Meta sidebar
+      document.getElementById('meta-supplier').textContent = data.supplierName || '-';
+      document.getElementById('meta-total').textContent = '₹' + window.UTILS.formatIndianCurrency(data.grandTotal || 0);
+      document.getElementById('meta-created-by').textContent = data.createdBy || 'Authorized User';
+      document.getElementById('meta-created-at').textContent = window.UTILS.formatDate(data.createdTime || data.timestamp || new Date());
+
+      // PDF Iframe embed
+      const overlay = document.getElementById('pdf-loading-overlay');
+      if (data.driveStoredUrl) {
+        const previewUrl = data.driveStoredUrl.replace('/view?usp=drivesdk', '/preview').replace('/view', '/preview');
+        const iframe = document.getElementById('pdf-preview-iframe');
+        iframe.src = previewUrl;
+        iframe.onload = () => {
+          if (overlay) overlay.style.display = 'none';
+        };
+        // Safety fallback timeout to hide overlay in 2 seconds if iframe onload is blocked by browser
+        setTimeout(() => {
+          if (overlay) overlay.style.display = 'none';
+        }, 2000);
+      } else {
+        if (overlay) overlay.innerHTML = '⚠️ PDF generated and stored in Drive.';
+      }
+
+      // Show/Hide approval workflow actions
+      const approvalActionsGroup = document.getElementById('approval-actions-group');
+      if (approvalActionsGroup) {
+        if (data.status === 'Pending' || data.status === 'Generated') {
+          approvalActionsGroup.style.display = 'flex';
+        } else {
+          approvalActionsGroup.style.display = 'none';
+        }
+      }
+
+      // Render Revision History Timeline
+      renderRevisionHistory();
+    }
+
+    function renderRevisionHistory() {
+      const container = document.getElementById('revision-timeline-container');
+      if (!container) return;
+
+      const history = poObject.revisionHistory || [];
+      if (history.length === 0) {
+        // Show initial version
+        container.innerHTML = `
+          <div class="timeline-item">
+            <div class="timeline-date">${window.UTILS.formatDate(poObject.timestamp)}</div>
+            <div class="timeline-desc"><strong>Revision 0:</strong> Created by ${poObject.createdBy || 'Authorized User'}</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = history.map((rev, index) => {
+        const formattedDate = window.UTILS.formatDate(rev.timestamp) + ' ' + new Date(rev.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        return `
+          <div class="timeline-item">
+            <div class="timeline-date">${formattedDate}</div>
+            <div class="timeline-desc">
+              <strong>Revision ${rev.revision}:</strong> Updated by ${rev.updatedBy || 'Authorized User'}
+              ${rev.notes ? `<div style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">Changes: ${rev.notes}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setupActionBindings() {
+      // Edit Button
+      document.getElementById('btn-edit-po').addEventListener('click', () => {
+        window.location.href = `edit-po.html?id=${encodeURIComponent(currentPoNo)}`;
+      });
+
+      // Duplicate Button
+      document.getElementById('btn-duplicate-po').addEventListener('click', async () => {
+        window.UI.showToast('Duplicating PO data...', 'info');
+        try {
+          const cloneData = {...poObject};
+          delete cloneData.poNo;
+          delete cloneData.id;
+          delete cloneData.timestamp;
+          delete cloneData.createdTime;
+          delete cloneData.revisionHistory;
+          delete cloneData.status;
+          delete cloneData.driveStoredUrl;
+          delete cloneData.directDownloadLink;
+          
+          sessionStorage.setItem('duplicate_po', JSON.stringify(cloneData));
+          window.location.href = 'create-po.html?duplicate=1';
+        } catch (err) {
+          window.UI.showToast('Duplication load failed.', 'error');
+        }
+      });
+
+      // Email Trigger Modal
+      const emailModal = document.getElementById('email-modal');
+      document.getElementById('btn-send-email').addEventListener('click', () => {
+        emailModal.style.display = 'flex';
+      });
+
+      document.getElementById('email-modal-close').addEventListener('click', () => { emailModal.style.display = 'none'; });
+      document.getElementById('email-cancel').addEventListener('click', () => { emailModal.style.display = 'none'; });
+
+      document.getElementById('email-send-submit').addEventListener('click', async () => {
+        const emailInput = document.getElementById('recipient-email').value.trim();
+        if (!emailInput) {
+          window.UI.showToast('Please enter an email address.', 'error');
+          return;
+        }
+
+        const sendBtn = document.getElementById('email-send-submit');
+        window.UI.showLoader(sendBtn, 'Sending...');
+
+        try {
+          await window.API.sendPOEmail(currentPoNo, emailInput);
+          window.UI.showToast(`Purchase Order emailed to ${emailInput} successfully!`, 'success');
+          emailModal.style.display = 'none';
+        } catch (err) {
+          window.UI.showToast(err.message || 'Failed to send email.', 'error');
+        } finally {
+          window.UI.hideLoader(sendBtn, 'Send Email');
+        }
+      });
+
+      // Approve / Reject
+      document.getElementById('btn-approve-po').addEventListener('click', () => updateStatus('Approved'));
+      document.getElementById('btn-reject-po').addEventListener('click', () => updateStatus('Rejected'));
+    }
+
+    async function updateStatus(newStatus) {
+      if (!confirm(`Are you sure you want to change the status of this Purchase Order to ${newStatus}?`)) {
+        return;
+      }
+
+      window.UI.showToast(`Updating status to ${newStatus}...`, 'info');
+      try {
+        const updatedPo = {...poObject, status: newStatus, updatedBy: window.CONFIG.USER_EMAIL};
+        await window.API.updatePO(currentPoNo, updatedPo);
+        window.UI.showToast(`Purchase Order ${newStatus}!`, 'success');
+        
+        // Reload details
+        document.getElementById('pdf-loading-overlay').style.display = 'flex';
+        await loadPODetails();
+      } catch (err) {
+        window.UI.showToast(`Failed to update status: ${err.message}`, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

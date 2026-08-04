@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Purchase Order - POMS</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="shortcut icon" href="https://i.imgur.com/gK9RzUp.png" type="image/x-icon">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar-container"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navbar -->
+      <nav class="navbar" id="navbar-container"></nav>
+
+      <form id="po-form">
+        <!-- Title bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+          <h2 style="font-size: 20px; font-weight: 700; color: var(--text-heading);" id="form-mode-title">Create Purchase Order</h2>
+          <div style="display: flex; gap: 10px;">
+            <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary" id="submit-po-btn">Create Purchase Order</button>
+          </div>
+        </div>
+
+        <!-- Section 1: PO Info -->
+        <div class="form-section-card">
+          <div class="section-title">PO Info</div>
+          <div style="max-width: 250px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="po-date">PO Date *</label>
+              <input type="date" id="po-date" class="form-control" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2 & 3: Supplier and Ship To details -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+          <!-- Supplier Details -->
+          <div class="form-section-card" style="margin-bottom: 0;">
+            <div class="section-title">Supplier Details</div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+              <div class="form-group">
+                <label for="sup-name">Supplier Name *</label>
+                <input type="text" id="sup-name" class="form-control" placeholder="Supplier Company Name" required>
+              </div>
+              <div class="form-group">
+                <label for="sup-address">Address</label>
+                <textarea id="sup-address" class="form-control" placeholder="Supplier Street Address"></textarea>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                  <label for="sup-gstin">GSTIN</label>
+                  <input type="text" id="sup-gstin" class="form-control" placeholder="15-digit GSTIN" maxlength="15">
+                </div>
+                <div class="form-group">
+                  <label for="sup-pan">PAN</label>
+                  <input type="text" id="sup-pan" class="form-control" placeholder="10-digit PAN" maxlength="10">
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                  <label for="sup-cin">CIN</label>
+                  <input type="text" id="sup-cin" class="form-control" placeholder="Corporate ID" maxlength="21">
+                </div>
+                <div class="form-group">
+                  <label for="sup-email">Email</label>
+                  <input type="email" id="sup-email" class="form-control" placeholder="supplier@email.com">
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                  <label for="sup-phone">Contact Number</label>
+                  <input type="text" id="sup-phone" class="form-control" placeholder="Phone/Mobile">
+                </div>
+                <div class="form-group">
+                  <label for="sup-contact-person">Contact Person</label>
+                  <input type="text" id="sup-contact-person" class="form-control" placeholder="Manager Name">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Consignee / Ship To Details -->
+          <div class="form-section-card" style="margin-bottom: 0;">
+            <div class="section-title">Consignee / Ship To</div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+              <div class="form-group">
+                <label for="ship-name">Company Name *</label>
+                <input type="text" id="ship-name" class="form-control" placeholder="Shipping Company Name" required value="KAN UNIVERSAL PVT. LTD.">
+              </div>
+              <div class="form-group">
+                <label for="ship-address">Address</label>
+                <textarea id="ship-address" class="form-control" placeholder="Shipping Destination Address">1ST FLOOR, HOUSE NO 367, BHARAT NAGAR ROAD,
+KOTHI WALA BAGH, ASHOK VIHAR PH 4, NEW DELHI 110052</textarea>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                  <label for="ship-gstin">GSTIN</label>
+                  <input type="text" id="ship-gstin" class="form-control" placeholder="15-digit GSTIN" maxlength="15" value="07AAECK5460B1ZU">
+                </div>
+                <div class="form-group">
+                  <label for="ship-pan">PAN</label>
+                  <input type="text" id="ship-pan" class="form-control" placeholder="10-digit PAN" maxlength="10" value="AAECK5460B">
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                  <label for="ship-cin">CIN</label>
+                  <input type="text" id="ship-cin" class="form-control" placeholder="Corporate ID" maxlength="21" value="U51395DL2011PTC227598">
+                </div>
+                <div class="form-group">
+                  <label for="ship-email">Email</label>
+                  <input type="email" id="ship-email" class="form-control" placeholder="shipping@email.com" value="info@onmail.com">
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+                <div class="form-group">
+                  <label for="ship-phone">Contact Number</label>
+                  <input type="text" id="ship-phone" class="form-control" placeholder="Phone/Mobile" value="In/xxx">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Product details dynamic table -->
+        <div class="form-section-card">
+          <div class="section-title">
+            <span>Products Details</span>
+            <button type="button" class="btn btn-secondary btn-sm" id="add-row-btn">➕ Add Product Row</button>
+          </div>
+          
+          <div style="overflow-x: auto; margin-bottom: 20px;">
+            <table class="product-form-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px; text-align: center;">S.No</th>
+                  <th>Item Description *</th>
+                  <th>Specifications</th>
+                  <th>Brand</th>
+                  <th style="width: 110px;">Qty *</th>
+                  <th style="width: 110px;">Unit</th>
+                  <th style="width: 140px;">Rate *</th>
+                  <th style="width: 140px; text-align: right;">Amount</th>
+                  <th style="width: 100px; text-align: center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="product-rows">
+                <!-- Rows added dynamically via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section 5: Charges and Calculations -->
+        <div class="form-section-card">
+          <div class="section-title">Charges & Totals</div>
+          
+          <div class="charges-container">
+            <!-- Left Side Inputs -->
+            <div class="charges-inputs">
+
+              <div class="form-group" style="grid-column: span 2;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="show-others" checked style="cursor: pointer; width: 15px; height: 15px;">
+                    <label for="show-others" style="margin-bottom: 0; cursor: pointer; font-size: 13px; font-weight: 600; text-transform: uppercase;">Others (Incl. Freight, Loading, Unloading, Packing) (₹)</label>
+                  </div>
+                  <button type="button" class="btn btn-secondary btn-sm" id="toggle-others-breakdown-btn" style="padding: 4px 8px; font-size: 11px; border-radius: 4px;">Breakdown ⚙️</button>
+                </div>
+                <input type="number" step="any" min="0" id="others" class="form-control" value="0" readonly style="background: rgba(255, 255, 255, 0.02); cursor: not-allowed;" title="Calculated from breakdown below">
+                
+                <!-- Collapsible Breakdown Panel -->
+                <div id="others-breakdown-panel" style="display: none; margin-top: 15px; padding: 15px; background: rgba(0, 0, 0, 0.15); border: 1px dashed var(--card-border); border-radius: 8px; grid-template-columns: 1fr 1fr; gap: 15px;">
+                  <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                      <input type="checkbox" id="show-freight" checked style="cursor: pointer; width: 14px; height: 14px;">
+                      <label for="show-freight" style="margin-bottom: 0; cursor: pointer; font-size: 11px; font-weight: 600; text-transform: uppercase;">Freight (₹)</label>
+                    </div>
+                    <input type="number" step="any" min="0" id="freight" class="form-control breakdown-input" value="0">
+                  </div>
+                  <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                      <input type="checkbox" id="show-loading" checked style="cursor: pointer; width: 14px; height: 14px;">
+                      <label for="show-loading" style="margin-bottom: 0; cursor: pointer; font-size: 11px; font-weight: 600; text-transform: uppercase;">Loading (₹)</label>
+                    </div>
+                    <input type="number" step="any" min="0" id="loading" class="form-control breakdown-input" value="0">
+                  </div>
+                  <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                      <input type="checkbox" id="show-unloading" checked style="cursor: pointer; width: 14px; height: 14px;">
+                      <label for="show-unloading" style="margin-bottom: 0; cursor: pointer; font-size: 11px; font-weight: 600; text-transform: uppercase;">Unloading (₹)</label>
+                    </div>
+                    <input type="number" step="any" min="0" id="unloading" class="form-control breakdown-input" value="0">
+                  </div>
+                  <div class="form-group">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                      <input type="checkbox" id="show-packing" checked style="cursor: pointer; width: 14px; height: 14px;">
+                      <label for="show-packing" style="margin-bottom: 0; cursor: pointer; font-size: 11px; font-weight: 600; text-transform: uppercase;">Packing (₹)</label>
+                    </div>
+                    <input type="number" step="any" min="0" id="packing" class="form-control breakdown-input" value="0">
+                  </div>
+                </div>
+              </div>
+              <div class="form-group" id="cgst-rate-group">
+                <label for="cgst-rate">CGST Rate (%)</label>
+                <input type="number" step="any" min="0" id="cgst-rate" class="form-control" value="9">
+              </div>
+              <div class="form-group" id="sgst-rate-group">
+                <label for="sgst-rate">SGST Rate (%)</label>
+                <input type="number" step="any" min="0" id="sgst-rate" class="form-control" value="9">
+              </div>
+
+            </div>
+            
+            <!-- Right Side Totals Output -->
+            <div>
+              <div class="charges-summary">
+                <div class="summary-row">
+                  <span>Sub Total:</span>
+                  <span id="txt-subtotal">₹0.00</span>
+                </div>
+                <div class="summary-row" id="row-summary-cgst">
+                  <span id="lbl-cgst">CGST (9%):</span>
+                  <span id="txt-cgst">₹0.00</span>
+                </div>
+                <div class="summary-row" id="row-summary-sgst">
+                  <span id="lbl-sgst">SGST (9%):</span>
+                  <span id="txt-sgst">₹0.00</span>
+                </div>
+
+                <div class="summary-row" id="row-summary-others">
+                  <span>Others:</span>
+                  <span id="txt-others">₹0.00</span>
+                </div>
+                <div class="summary-row" id="row-summary-freight" style="display: none;">
+                  <span>Freight:</span>
+                  <span id="txt-freight">₹0.00</span>
+                </div>
+                <div class="summary-row" id="row-summary-loading" style="display: none;">
+                  <span>Loading:</span>
+                  <span id="txt-loading">₹0.00</span>
+                </div>
+                <div class="summary-row" id="row-summary-unloading" style="display: none;">
+                  <span>Unloading:</span>
+                  <span id="txt-unloading">₹0.00</span>
+                </div>
+                <div class="summary-row" id="row-summary-packing" style="display: none;">
+                  <span>Packing:</span>
+                  <span id="txt-packing">₹0.00</span>
+                </div>
+
+                <div class="summary-row grand-total">
+                  <span>Grand Total:</span>
+                  <span id="txt-grandtotal">₹0.00</span>
+                </div>
+              </div>
+              <div class="amount-words-box">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px;">Amount in Words</div>
+                <div id="amount-words-text" style="font-weight: 600;">Zero Rupees Only</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 6: Terms & Conditions -->
+        <div class="form-section-card" style="margin-bottom: 30px;">
+          <div class="section-title">
+            <span>Terms & Conditions List</span>
+            <button type="button" class="btn btn-secondary btn-sm" id="add-term-btn">➕ Add Term Row</button>
+          </div>
+          <div id="terms-list">
+            <!-- Terms rows added dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- Sticky Submit Panel -->
+        <div style="background: var(--panel-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: var(--border-radius); display: flex; justify-content: flex-end; gap: 15px;">
+          <a href="dashboard.html" class="btn btn-secondary">Discard Changes</a>
+          <button type="submit" class="btn btn-primary" style="padding: 12px 36px;" id="bottom-submit-po-btn">Save Purchase Order</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/validation.js"></script>
+  <script src="js/calculation.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/crud.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Initialize Layout components
+      await window.UI.initLayout('Create PO', 'Add a new Purchase Order details');
+      
+      // 2. Initialize Create form controls
+      window.CRUD.initCreateForm();
+
+      // Mirror bottom submit button click to main form submit
+      const bottomSubmit = document.getElementById('bottom-submit-po-btn');
+      bottomSubmit.addEventListener('click', (e) => {
+        // Form submission is handled by the submit listener on po-form
+      });
+    });
+  </script>
+</body>
+</html>
